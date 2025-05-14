@@ -7,6 +7,7 @@ import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.kafka.streams.StreamsConfig;
+import org.example.kafkaproducer.util.PurchaseLogOneProductSerializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -40,7 +41,7 @@ public class KafkaConfig {
     /*@Bean
     public KafkaTemplate<String, Object> KafkaTemplateForPurchaseLog() {
         return new KafkaTemplate<String, Object>(ProducerFactory());
-    }
+    }*/
 
     @Bean
     public ProducerFactory<String, Object> ProducerFactory() {
@@ -48,11 +49,11 @@ public class KafkaConfig {
 
         myConfig.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "3.26.170.140:9092, 3.25.65.38:9092, 13.211.175.3:9092");
         myConfig.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        myConfig.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        myConfig.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, PurchaseLogOneProductSerializer.class);
 
         return new DefaultKafkaProducerFactory<>(myConfig);
     }
-
+/*
     @Bean
     public ConsumerFactory<String, Object> ConsumerFactory() {
         Map<String, Object> myConfig = new HashMap<>();
