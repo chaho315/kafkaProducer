@@ -13,19 +13,19 @@ import java.time.Duration;
 public class StreamService {
     private static final Serde<String> STRING_SERDE = Serdes.String();
 
-    @Autowired
+    /*@Autowired
     public void buildPipeline(StreamsBuilder sb){
-/*  1. Stream을 통한 기본적인 pub 이후 sub 진행
+*//*  1. Stream을 통한 기본적인 pub 이후 sub 진행
       KStream<String, String> myStream = sb.stream("fastTopic", Consumed.with(STRING_SERDE, STRING_SERDE));
         myStream.print(Printed.toSysOut());
-        myStream.filter((key, value)-> value.contains("freeClass")).to("freeClassList");*/
+        myStream.filter((key, value)-> value.contains("freeClass")).to("freeClassList");*//*
 
         KStream<String, String> leftStream = sb.stream("leftTopic", Consumed.with(STRING_SERDE, STRING_SERDE));
         // key:value --> 1:leftValue
         KStream<String, String> rightStream = sb.stream("rightTopic", Consumed.with(STRING_SERDE, STRING_SERDE));
         // key:value --> 1:rightValue
-        /*leftStream.print(Printed.toSysOut());
-        rightStream.print(Printed.toSysOut());*/
+        *//*leftStream.print(Printed.toSysOut());
+        rightStream.print(Printed.toSysOut());*//*
 
         ValueJoiner<String, String, String> stringJoiner = (leftValue, rightValue) -> {
             return "[StringJoiner]" + leftValue + "-" + rightValue;
@@ -45,5 +45,5 @@ public class StreamService {
         joinedStream.print(Printed.toSysOut());
         joinedStream.to("joinedMsg");
         outerJoinedStream.to("joinedMsg");
-    }
+    }*/
 }

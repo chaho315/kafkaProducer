@@ -8,6 +8,9 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.kafka.streams.StreamsConfig;
 import org.example.kafkaproducer.util.PurchaseLogOneProductSerializer;
+import org.example.kafkaproducer.util.PurchaseLogSerializer;
+import org.example.kafkaproducer.util.WatchingAdLogSerializer;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -38,10 +41,40 @@ public class KafkaConfig {
         return new KafkaStreamsConfiguration(myKStreamConfig);
     }
 
-    /*@Bean
+    @Bean
     public KafkaTemplate<String, Object> KafkaTemplateForPurchaseLog() {
+        return new KafkaTemplate<String, Object>(ProducerFactoryForPurchaseLog());
+    }
+    @Bean
+    public KafkaTemplate<String, Object> KafkaTemplateForGeneral() {
         return new KafkaTemplate<String, Object>(ProducerFactory());
-    }*/
+    }
+
+    @Bean
+    public ProducerFactory<String, Object> ProducerFactoryForPurchaseLog() {
+        Map<String, Object> myConfig = new HashMap<>();
+
+        myConfig.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "3.26.170.140:9092, 3.25.65.38:9092, 13.211.175.3:9092");
+        myConfig.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        myConfig.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, PurchaseLogSerializer.class);
+
+        return new DefaultKafkaProducerFactory<>(myConfig);
+    }
+
+    @Bean
+    public KafkaTemplate<String, Object> KafkaTemplateForWatchingAdLog() {
+        return new KafkaTemplate<String, Object>(ProducerFactoryForWatchingAdLog());
+    }
+    @Bean
+    public ProducerFactory<String, Object> ProducerFactoryForWatchingAdLog() {
+        Map<String, Object> myConfig = new HashMap<>();
+
+        myConfig.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "3.26.170.140:9092, 3.25.65.38:9092, 13.211.175.3:9092");
+        myConfig.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        myConfig.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, WatchingAdLogSerializer.class);
+
+        return new DefaultKafkaProducerFactory<>(myConfig);
+    }
 
     @Bean
     public ProducerFactory<String, Object> ProducerFactory() {

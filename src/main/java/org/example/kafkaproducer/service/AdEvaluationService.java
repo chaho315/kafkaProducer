@@ -16,8 +16,7 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class AdEvaluationService {
@@ -32,6 +31,7 @@ public class AdEvaluationService {
 
     @Autowired
     Producer myprdc;
+
     @Autowired
     public void buildPipeline(StreamsBuilder sb){
         JsonSerializer<EffectOrNot> effectSerializer = new JsonSerializer<>();
@@ -71,6 +71,7 @@ public class AdEvaluationService {
                     tempVo.setPurchasedDt(v.getPurchasedDt());
 
                     myprdc.sendJoinedMsg("oneProduct",tempVo);
+                    sendNewMsg();
                 }
             }
         });
@@ -94,5 +95,46 @@ public class AdEvaluationService {
         };
 
         adTable.join(purchaseLogOneProductKTable, tableStreamJoiner).toStream().to("AdEvaluationComplete", Produced.with(Serdes.String(), effectOrNotSerde));
+    }
+
+    //대량의 테스트 데이터 생성 로직
+    public void sendNewMsg() {
+        PurchaseLog tempPurchaseLog  = new PurchaseLog();
+        WatchingAdLog tempWatchingAdLog = new WatchingAdLog();
+
+        //랜덤한 ID를 생성하기 위해 아래의 함수를 사용합니다.
+        // random Numbers for concatenation with attrs
+        Random rd = new Random();
+        int rdUidNumber = rd.nextInt(9999);
+        int rdOrderNumber = rd.nextInt(9999);
+        int rdProdIdNumber = rd.nextInt(9999);
+        int rdPriceIdNumber = rd.nextInt(90000)+10000;
+        int prodCnt = rd.nextInt(9)+1;
+        int watchingTime = rd.nextInt(55)+5;
+
+        // bind value for purchaseLog
+        tempPurchaseLog.setUserId("uid-" + String.format("%05d", rdUidNumber));
+        tempPurchaseLog.setPurchasedDt("20230101070000");
+        tempPurchaseLog.setOrderId("od-" + String.format("%05d", rdOrderNumber));
+        ArrayList<Map<String, String>> tempProdInfo = new ArrayList<>();
+        Map<String, String> tempProd = new HashMap<>();
+        for (int i=0; i<prodCnt; i++ ){
+            tempProd.put("productId", "pg-" + String.format("%05d", rdProdIdNumber));
+            tempProd.put("price", String.format("%05d", rdPriceIdNumber));
+            tempProdInfo.add(tempProd);
+        }
+        tempPurchaseLog.setProductInfo(tempProdInfo);
+
+        // bind value for watchingAdLog
+        tempWatchingAdLog.setUserId("uid-" + String.format("%05d", rdUidNumber));
+        tempWatchingAdLog.setProductId("pg-" + String.format("%05d", rdProdIdNumber));
+        tempWatchingAdLog.setAdId("ad-" + String.format("%05d",rdUidNumber) );
+        tempWatchingAdLog.setAdType("banner");
+        tempWatchingAdLog.setWatchingTime(String.valueOf(watchingTime));
+        tempWatchingAdLog.setWatchingDt("20230201070000");
+
+        // produce msg
+        myprdc.sendMsgForPurchaseLog("purchaseLog", tempPurchaseLog);
+        myprdc.sendMsgForWatchingAdLog("adLog", tempWatchingAdLog);
     }
 }
